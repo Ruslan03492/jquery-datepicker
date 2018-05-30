@@ -25,8 +25,7 @@
   background-color: #fff;
   border: 1px solid #d3dce6;
   border-radius: 2px;
-  -webkit-box-shadow: 0 2px 5px #ccc;
-          box-shadow: 0 2px 5px #ccc;
+  box-shadow: 0 2px 5px #ccc;
   margin: 5px 0;
   z-index: 2008; }
   .gmi-picker-panel span {
@@ -59,8 +58,7 @@
       width: 50%;
       float: left;
       padding: 0 5px;
-      -webkit-box-sizing: border-box;
-              box-sizing: border-box; }
+      box-sizing: border-box; }
       .gmi-picker-panel__body__header--time__wrapper .gmi-input {
         width: 100%;
         display: inline-block; }
@@ -71,8 +69,7 @@
           -moz-appearance: none;
           border-radius: 2px;
           border: 1px solid #bfcbd9;
-          -webkit-box-sizing: border-box;
-                  box-sizing: border-box;
+          box-sizing: border-box;
           color: #1f2d3d;
           display: block;
           line-height: 1;
@@ -114,8 +111,7 @@
     .gmi-picker-panel .gmi-date-table td {
       width: 32px;
       height: 32px;
-      -webkit-box-sizing: border-box;
-              box-sizing: border-box;
+      box-sizing: border-box;
       text-align: center;
       cursor: pointer;
       vertical-align: middle;
@@ -220,16 +216,14 @@
       padding-bottom: 5px; }
     .gmi-date-range-picker__body .gmi-picker-panel__body__main {
       width: 50%;
-      -webkit-box-sizing: border-box;
-              box-sizing: border-box;
+      box-sizing: border-box;
       margin: 0;
       padding: 15px; }
   .gmi-date-range-picker__header--time__wrapper .gmi-input {
     float: left;
     width: 50%;
     padding: 0 5px;
-    -webkit-box-sizing: border-box;
-            box-sizing: border-box; }
+    box-sizing: border-box; }
   .gmi-date-range-picker__header__icon-btn {
     position: absolute;
     top: 0;
@@ -265,8 +259,7 @@
   color: #475669;
   background-color: #fff;
   border: 1px solid #d1dbe5;
-  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
   border-radius: 2px;
   -webkit-transform-origin: center top 0;
       -ms-transform-origin: center top 0;
@@ -296,8 +289,7 @@
       height: 32px;
       left: 0;
       right: 0;
-      -webkit-box-sizing: border-box;
-              box-sizing: border-box;
+      box-sizing: border-box;
       padding-top: 6px;
       text-align: left; }
     .gmi-time-panel__body:after {
@@ -314,8 +306,7 @@
       height: 32px;
       left: 66.66667%;
       right: 0;
-      -webkit-box-sizing: border-box;
-              box-sizing: border-box;
+      box-sizing: border-box;
       padding-top: 6px;
       text-align: left; }
     .gmi-time-panel__body__item {

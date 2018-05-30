@@ -350,24 +350,29 @@
       defaults: {
         readonly: false,
         disabled: false,
+        showTodaySuffix: false,
         type: 'date', // year/month/date/date-range/datetime/datetime-range
         format: 'yyyy-MM-dd',
         placeholder: 'Please pick a day',
         align: 'left',
         startDate: null,
         endDate: null,
-        lang: 'en-US',
+        lang: $('html').attr('lang') || 'en',
         rangeSeparator: '-',
         weekStart: 0,
         defaultValue: '',
         zIndex: DATE_PANEL_Z_INDEX,
         onChange: null,
         onShow: null,
-        onHide: null
+        onHide: null,
+        onPrepareValue: null,
       },
       _init: function () {
         // copy property from options
         datepicker = $.extend(true, datepicker, core.defaults, options || {});
+        if (datepicker.lang && typeof $.fn.datepicker.lang[datepicker.lang] == 'undefined') {
+          datepicker.lang = 'en';
+        }
         if (datepicker.lang) datepicker = $.extend(datepicker, $.fn.datepicker.lang[datepicker.lang]);
 
         var type = datepicker.type;
@@ -1237,7 +1242,7 @@
           for (var j = 0; j < row.length; j++) {
             var cell = row[j];
             var classes = core._getCellClasses(cell);
-            var text = cell.type === 'today' ? datepicker.todaySuffix : cell.text;
+            var text = (cell.type === 'today' && datepicker.showTodaySuffix) ? datepicker.todaySuffix : cell.text;
             tableStr += '<td data-year="'+ cell.year +'" data-month="'+ cell.month +'" class="'+ classes +'">'+ text +'</td>';
           }
           tableStr += '</tr>';
@@ -1491,6 +1496,12 @@
 
         return classes.join(' ');
       },
+      _setValueToElement: function(type, date) {
+        if ($.isFunction(datepicker.onPrepareValue)) {
+          date = datepicker.onPrepareValue.call(this, type, date, datepicker.rangeSeparator);
+        }
+        $el.val(date);
+      },
       _setDate: function (date) {
         var type = datepicker.type;
         var format = datepicker.format;
@@ -1528,7 +1539,7 @@
                         .val($.formatDate(maxDate, DEFAULT_TIME_FORMAT));
                       datepicker.$pickerPanel.find('.gmi-picker-panel__link-btn--determine').removeClass('disabled');
                     }
-                    $el.val(date);
+                    core._setValueToElement(type, date);
                   } else {
                     throw new Error('The maximum date must be greater than or equal to the minimum date');
                   }
@@ -1556,7 +1567,7 @@
                   datepicker.$pickerPanel.find('.gmi-picker-panel__link-btn--determine')
                     .removeClass('disabled');
                 }
-                $el.val(date);
+                core._setValueToElement(type, date);
               }
             } else if (type === 'month') {
               var oldMonth = $.formatDate(datepicker.date, format);
@@ -1578,7 +1589,7 @@
                 datepicker.yearLabel = $.parseDate(newMonth, format).getFullYear();
                 datepicker.monthLabel = $.parseDate(newMonth, format).getMonth();
                 core._setNewMonthDOM(datepicker.$pickerPanel, $.parseDate(newMonth, format).getMonth());
-                $el.val(newMonth);
+                core._setValueToElement(type, newMonth);
               }
             } else if (type === 'year') {
               var oldYear = datepicker.date.getFullYear();
@@ -1599,7 +1610,7 @@
                 } else {
                   core._setNewYearDOM(datepicker.$pickerPanel, newYear);
                 }
-                $el.val(newYear);
+                core._setValueToElement(type, newYear);
               }
             }
           } else if (isDate(date)) {
@@ -1736,7 +1747,7 @@
             datepicker.value = year;
             datepicker.yearLabel = year;
           }
-          $el.val($.formatDate(new Date(year, 0, 1), datepicker.format));
+          core._setValueToElement(type, $.formatDate(new Date(year, 0, 1), datepicker.format));
           core._hidePickerPanel();
         }
       },
@@ -1761,7 +1772,7 @@
             datepicker.date = new Date(year, month, 1);
           }
           datepicker.value = $.formatDate(new Date(year, month, 1), datepicker.format);
-          $el.val($.formatDate(new Date(year, month, 1), datepicker.format));
+          core._setValueToElement(type, $.formatDate(new Date(year, month, 1), datepicker.format));
           core._hidePickerPanel();
         }
         datepicker.monthLabel = month;
@@ -1908,7 +1919,7 @@
         if ('' !== datepicker.value) {
           // EVENT_PICK triggered
           core._trigger('pick.datepicker', {newDate: '', oldDate: datepicker.value});
-          $el.val('');
+          core._setValueToElement(type, '');
           datepicker.date = new Date();
           datepicker.value = '';
           datepicker.yearLabel = datepicker.date.getFullYear();
@@ -2031,7 +2042,7 @@
   };
 
   DatePicker.LANG = {
-    'en-US': {
+    'en': {
       days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
       daysMin: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -2049,7 +2060,103 @@
       confirmDateButton: 'Confirm',
       cancelTimeButton: 'Cancel',
       clearButton: 'Clear'
-    }
+    },
+    'de' : {
+      days: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+      daysMin: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+      months: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+      monthsShort: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+      yearSuffix: '',
+      monthSuffix: '',
+      todaySuffix: 'Heute',
+      dateInputPlaceholder: 'Wählen Sie ein Datum aus',
+      rangeStartInputPlaceholder: 'Startdatum',
+      rangeEndPlaceholder: 'Enddatum',
+      dateTimeInputPlaceholder: 'Wähle eine Zeit aus',
+      rangeStartTimeInputPlaceholder: 'Startzeit',
+      rangeEndTimeInputPlaceholder: 'Letzte Zeit',
+      nowDateButton: 'Jetzt',
+      confirmDateButton: 'Bestätigen Sie',
+      cancelTimeButton: 'Abbrechen',
+      clearButton: 'Löschen'
+    },
+    'es': {
+      days: ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+      daysMin: ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
+      months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+      monthsShort: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+      yearSuffix: '',
+      monthSuffix: '',
+      todaySuffix: 'Hoy',
+      dateInputPlaceholder: 'Seleccione una fecha',
+      rangeStartInputPlaceholder: 'Fecha de inicio',
+      rangeEndPlaceholder: 'Fecha de finalización',
+      dateTimeInputPlaceholder: 'Elige un tiempo',
+      rangeStartTimeInputPlaceholder: 'Hora de inicio',
+      rangeEndTimeInputPlaceholder: 'Hora final',
+      nowDateButton: 'Ahora',
+      confirmDateButton: 'Confirmar',
+      cancelTimeButton: 'Cancelar',
+      clearButton: 'Claro'
+    },
+    'ru': {
+      days: ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'],
+      daysMin: ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'],
+      months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+      monthsShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+      yearSuffix: '',
+      monthSuffix: '',
+      todaySuffix: 'Сегодня',
+      dateInputPlaceholder: 'Выберите дату',
+      rangeStartInputPlaceholder: 'Начальная дата',
+      rangeEndPlaceholder: 'Конечная дата',
+      dateTimeInputPlaceholder: 'Выберите время',
+      rangeStartTimeInputPlaceholder: 'Начальное время',
+      rangeEndTimeInputPlaceholder: 'Конечное время',
+      nowDateButton: 'Сейчас',
+      confirmDateButton: 'Подтвердить',
+      cancelTimeButton: 'Отмена',
+      clearButton: 'Очистить'
+    },
+    'vi': {
+      days: ["Chủ Nhật","Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "Chủ Nhật"],
+      daysMin: ["CN", "T2", "T3", "T4", "T5", "T6", "T7", "CN"],
+      months: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"],
+      monthsShort: ["Thg1", "Thg2", "Thg3", "Thg4", "Thg5", "Thg6", "Thg7", "Thg8", "Thg9", "Thg10", "Thg11", "Thg12"],
+      yearSuffix: '',
+      monthSuffix: '',
+      todaySuffix: 'Hôm nay',
+      dateInputPlaceholder: 'tuyển chọn ngày tháng',
+      rangeStartInputPlaceholder: 'bắt đầu công việc ngày tháng',
+      rangeEndPlaceholder: 'cuối cùng ngày tháng',
+      dateTimeInputPlaceholder: 'tuyển chọn thời điểm',
+      rangeStartTimeInputPlaceholder: 'bắt đầu công việc thời điểm',
+      rangeEndTimeInputPlaceholder: 'cuối cùng thời điểm',
+      nowDateButton: 'hiện nay',
+      confirmDateButton: 'quyết định',
+      cancelTimeButton: 'hủy bỏ',
+      clearButton: 'trong suốt'
+    },
+    'zh': {
+      days: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+      daysShort: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+      daysMin: ['日', '一', '二', '三', '四', '五', '六'],
+      months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+      monthsShort: ['1 月', '2 月', '3 月', '4 月', '5 月', '6 月', '7 月', '8 月', '9 月', '10 月', '11 月', '12 月'],
+      yearSuffix: '年',
+      monthSuffix: '月',
+      todaySuffix: '今天',
+      dateInputPlaceholder: '当前日期',
+      rangeStartInputPlaceholder: '开始日期',
+      rangeEndPlaceholder: '结束日期',
+      dateTimeInputPlaceholder: '当前时间',
+      rangeStartTimeInputPlaceholder: '开始时间',
+      rangeEndTimeInputPlaceholder: '结束时间',
+      nowDateButton: '此刻',
+      confirmDateButton: '确定',
+      cancelTimeButton: '取消',
+      clearButton: '清空'
+    },
   };
 
   $.fn.datepicker = function (options) {

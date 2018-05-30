@@ -66,9 +66,16 @@
       format: compileData.format,
       align: compileData.align !== '' ? compileData.align : 'left',
       weekStart: 1,
-      startDate: $.getPrevYear(new Date()),
-      endDate: getPrevDate(),
-      defaultValue: compileData.defaultValue,
+      todaySuffix: false,
+      startDate: new Date(),
+      endDate: getEndDate(),
+      defaultValue: new Date(),
+      onPrepareValue: function(type, date, separator) {
+        console.log(type);
+        console.log(date);
+        console.log(separator);
+        return date;
+      },
       onChange: function (event) {
         $('.callback-content[data-role=change]').text(event.newDate);
         $('.events-content[data-role=pick]').text(event.newDate);
@@ -145,9 +152,9 @@
   }
 
   // Utils
-  function getPrevDate () {
+  function getEndDate () {
     var now = new Date();
-    var newDate = now.getTime() - (1000 * 3600 * 24);
+    var newDate = now.getTime() + (1000 * 3600 * 24) * 100;
     return new Date(newDate);
   }
 })(jQuery);
